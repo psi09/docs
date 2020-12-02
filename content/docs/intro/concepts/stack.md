@@ -9,8 +9,15 @@ menu:
 aliases: ["/docs/reference/stack/"]
 ---
 
-Every Pulumi program is deployed to a **stack**.  A stack is an isolated, independently [configurable]({{< relref "config" >}})
-instance of a Pulumi program. Stacks are commonly used to denote different phases of development (such as **development**, **staging** and **production**) or feature branches (such as **feature-x-dev**, **jane-feature-x-dev**).
+## Stacks
+
+A stack is a collection of cloud resources that is managed by a single Pulumi program. They are analogous to environments. For example, if you’ve ever created infrastructure as code, you may have created, for example, different environments for development, test, production.
+
+A project can have as many stacks as you need. By default, Pulumi creates a stack for you when you start a new project. The stack recognizes the current directory as the default name for your program.
+
+Each stack in a project has its own configuration file. A stack configuration file is named Pulumi.name.yaml. For example, the name of the dev stack configuration file is Pulumi.dev.yaml.
+
+Every Pulumi program is deployed to a **stack**.  A stack is an isolated, independently [configurable]({{< relref "config" >}}) instance of a Pulumi program. Stacks are commonly used to denote different phases of development (such as **development**, **staging** and **production**) or feature branches (such as **feature-x-dev**, **jane-feature-x-dev**).
 
 ## Create a stack {#create-stack}
 
@@ -102,9 +109,11 @@ Current stack outputs (2):
 Use `pulumi stack select` to change stack; `pulumi stack ls` lists known ones
 ```
 
-## View stack outputs {#outputs}
+## Stack Outputs {#outputs}
 
-When you use top-level exports in your Pulumi [program]({{< relref "programming-model#programs" >}}), they become [stack outputs]({{< relref "programming-model#stack-outputs" >}}). Stack outputs can be viewed via `pulumi stack output` and are shown on the stack information page on pulumi.com.
+A stack can export values as [stack outputs]({{< relref "/docs/intro/concepts/stack#outputs">}}). These outputs are shown during an update, can be easily retrieved with the Pulumi CLI, and are displayed in the Pulumi Console. They can be used for important values like resource IDs and computed IP addresses and DNS names.
+
+Stack outputs can be viewed via `pulumi stack output` and are shown on the stack information page on app.pulumi.com.
 
 ### **JavaScript code**
 
@@ -130,7 +139,40 @@ $ pulumi stack output publicIp
 18.218.85.197
 ```
 
-See also [Inter-Stack Dependencies]({{< relref "organizing-stacks-projects#inter-stack-dependencies" >}}), which allow one stack to reference the outputs of another stack.
+The right-hand side of a stack export can be a regular value, an Output, or a Promise (effectively, a Promise is the same as an Input). The actual values are resolved at the end of `pulumi up`.
+
+Stack exports are effectively JSON serialized, though quotes are removed when exporting strings.
+For example, this program:
+
+```typescript
+pulumi.export("x", "hello")
+pulumi.export("o", {'num': 42})
+```
+
+produces the following stack outputs:
+
+```bash
+$ pulumi stack output x
+hello
+$ pulumi stack output o
+{"num": 42}
+```
+
+The full set of outputs can be rendered as JSON by using `pulumi stack output --json`:
+
+```bash
+$ pulumi stack output --json
+{
+  "x": "hello",
+  "o": {
+      "num": 42
+  }
+}
+```
+
+> Note: If you export an actual resource, it too will be JSON serialized. This usually isn’t what you want, especially  because some resources are quite large. If you only want to export the resource’s ID or name, for example, just export those properties directly.
+
+Stack outputs respect secret annotations and are encrypted appropriately. If a stack contains any secret values, their plaintext values will not be shown by default. Instead, they will be displayed as [secret]({{< relref "" >}}) in the CLI. Pass `--show-secrets` to `pulumi stack output` to see the plaintext value.
 
 ## Import and export a stack deployment
 
@@ -163,3 +205,17 @@ Custom tags can be assigned to a stack by running [`pulumi stack tag set <name> 
 > **Note:** As a best practice, custom tags should not be prefixed with `pulumi:`, `gitHub:`, or `vcs:` to avoid conflicting with built-in tags that are assigned and updated with fresh values each time a stack is updated.
 
 Tags can be deleted by running [`pulumi stack tag rm <name>`]({{< relref "/docs/reference/cli/pulumi_stack_tag_rm" >}}).
+
+
+## Stack References
+
+Stack references allow you to access the outputs of one stack from another stack. [Inter-Stack Dependencies]({{< relref "organizing-stacks-projects#inter-stack-dependencies" >}}) allow one stack to reference the outputs of another stack. To reference values from another stack, create an instance of the StackReference type using the fully qualified name of the stack as an input, and then read exported stack outputs by their name:
+
+```typescript
+from pulumi import StackReference
+
+other = StackReference(f"acmecorp/infra/other")
+other_output = other.get_output("x");
+```
+
+Stack names must be fully qualified, including the organization, project, and stack name components, in the format `<organization>/<project>/<stack>`. For individual accounts, use your account name for the organization component.

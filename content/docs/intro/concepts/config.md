@@ -8,6 +8,9 @@ menu:
 
 aliases: ["/docs/reference/config/"]
 ---
+Configuration allows you to parameterize your program based on an externally managed configuration file. Configuration can be helpful if you want to, for example, have a different number of servers in your production stack than in development.
+
+This section describes how to programmatically interact with a configuration that has already been set.
 
 In many cases, different stacks for a single project will need differing values. For instance, you may want to use a different size for your AWS EC2 instance, or a different number of servers for your Kubernetes cluster between your development and production stacks.
 
@@ -65,6 +68,10 @@ $ cat my_key.pub | pulumi config set publicKey
 ### Accessing Configuration from Code {#code}
 
 Configuration can be used from within Pulumi programs by constructing an instance of the `Config` class and using it to `get` or `require` the value of a given config key.  Additional details can be found in the [config]({{< relref "/docs/intro/concepts/programming-model#reading-configuration-values" >}}) section of the programming model documentation.
+
+Configuration values can be retrieved using either [`Config.get`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.get" >}})  or [`Config.require`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.require" >}}). Using [`Config.get`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.get" >}}) returns None if the configuration value is not provided, and [`Config.require`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.require" >}}) raises an exception with an error message to prevent the deployment from continuing until the variable has been set by using the CLI.
+
+In this example, the name is required and a lucky number is optional:
 
 {{< chooser language "javascript,typescript,python,go,csharp" >}}
 
@@ -134,6 +141,20 @@ Console.WriteLine($"Hello, {name} -- I see your lucky number is {lucky}!");
 {{% /choosable %}}
 
 {{< /chooser >}}
+
+Here, we have created an instance of the [`Config`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config" >}}) class. In that instance, a number of getter functions allow us to read the currently set values.
+
+This code uses the simple, empty constructor. This default constructor automatically uses the current project as the namespace. If you are writing code that will be imported into another project, such as your own library of components, you should pass your library’s name to the constructor. This string is then used as a namespace for all configuration keys. The [`Config`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config" >}}) object also provides getters that mark a value as secret. These getters ensure that the underlying raw value is encrypted no matter where it goes. Read more about this in the [`Secrets`]({{< relref "/docs/intro/concepts/programming-model#secrets" >}}) documentation.
+
+### Typed Configuration Values
+
+Configuration values are stored as strings, but can be parsed and retrieved as typed values. In addition to Config.get  and Config.require , which are untyped, there is also a family of typed functions. For example, Config.get_int  converts the string value to a number returns an int value instead of a string, and raises an exception if the value cannot be parsed as a number. We saw this in action above.
+For richer structured data, the Config.get_object  method can be used to parse JSON values which can be set on the command line with pulumi config set and the --path flag. For example:
+$ pulumi config set --path data.active true
+$ pulumi config set --path data.nums[0] 1
+$ pulumi config set --path data.nums[1] 2
+$ pulumi config set --path data.nums[2] 3
+
 
 ### Encrypted Secrets {#secrets}
 
