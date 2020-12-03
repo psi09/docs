@@ -206,7 +206,6 @@ Custom tags can be assigned to a stack by running [`pulumi stack tag set <name> 
 
 Tags can be deleted by running [`pulumi stack tag rm <name>`]({{< relref "/docs/reference/cli/pulumi_stack_tag_rm" >}}).
 
-
 ## Stack References
 
 Stack references allow you to access the outputs of one stack from another stack. [Inter-Stack Dependencies]({{< relref "organizing-stacks-projects#inter-stack-dependencies" >}}) allow one stack to reference the outputs of another stack. To reference values from another stack, create an instance of the StackReference type using the fully qualified name of the stack as an input, and then read exported stack outputs by their name:

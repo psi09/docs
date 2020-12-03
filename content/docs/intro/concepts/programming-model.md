@@ -11,37 +11,41 @@ aliases: ["/docs/reference/programming-model/"]
 
 ## Concepts {#concepts}
 
-In this section, we will see the most basic concepts required to start declaring your infrastructure with Pulumi. Throughout the remainder of this page, we'll examine the ins and outs of Pulumi's programming model concepts.
+In this section, we introduce the basic concepts required to start declaring your infrastructure with Pulumi. Throughout the remainder of this page, we'll examine the ins and outs of Pulumi's programming model concepts.
 
 ## Pulumi Programming Model {#pulumi-programming-model}
 
 This diagram illustrates the structure of the Pulumi programming model.
 
-![Programming](programming-model.png)
+![Programming model](programming-model.png)
 
 ### Definitions
 
 Here are explanations of each component of the programming model.
 
-**Project**. A Pulumi [project]() contains code for declaring infrastructure. It has a name and instructions on how to run the code. The project folder also contains the default stack configuration files.
+**Project**. A Pulumi [project]({{< relref "/docs/intro/concepts/project">}}) contains code for declaring infrastructure. It has a name and instructions on how to run the code. The project folder also contains the default stack configuration files.
 
-**Program**. A [program]() is the code for building infrastructure and organizing them into stacks.
+**Program**. A program is the code for building infrastructure and organizing them into stacks.Pulumi programs are written in general-purpose programming languages, including JavaScript, TypeScript, Python, Go or any .NET language such as C#, F#, or VB. You use the language’s native tools and libraries, including Pulumi’s own packages containing infrastructure resource types.
 
-**Stack**. [Stacks]() are an instantiation of a program and contain a collection of cloud resources. A project can have multiple stacks. Stacks are similar to environments. For example, a project might have a dev stack,  a test stack and a production stack.
+Although you use general-purpose languages, Pulumi is still a declarative infrastructure as code tool. After writing a program, you run the Pulumi CLI command `pulumi up`, which executes the program and determines the desired infrastructure state for all resources declared. The CLI will show you a preview of changes to be made, including all new resources to be created and existing resources to update or destroy. After confirming, Pulumi will carry out the changes.
 
-**Resource**. A [resource]() represents a type of infrastructure, such as a compute instance. Resources can be aggregated together as component resources
+**Stack**. [Stacks]({{< relref "/docs/intro/concepts/stack">}}) are an instantiation of a program and contain a collection of cloud resources. A project can have multiple stacks. Stacks are similar to environments. For example, a project might have a dev stack,  a test stack and a production stack.
 
-**Inputs**. A resource has [inputs]() that represent the properties and dependencies between resources. An example of an input is the connection string to a database.
+**Resource**. A [resource]({{< relref "/docs/intro/concepts/resources">}}) represents a type of infrastructure, such as a compute instance. Resources can be aggregated together as component resources
 
-**Outputs**. A resource has [outputs]() that are properties of the resource instance. Outputs are also how Pulumi tracks dependencies between resources.
+**Resource Provider**. A [resource provider]({{< relref "/docs/intro/concepts/resource-providers">}}) A resource provider handles  communications  with a cloud service to create, read, update, and delete the resources you define in your Pulumi programs.
 
-**Secrets**. One type of input is a [secret](). Secrets are private data, such as passwords, used by a resource. Secrets can be encrypted.
+**Inputs**. A resource has [inputs]({{< relref "/docs/intro/concepts/inputs-outputs">}}) that represent the properties and dependencies between resources. An example of an input is the connection string to a database.
 
-**Environment Variables**. Another type of input are [environment variables](), which the stack requires to deploy the infrastructure correctly. An example of an environment variable is the AWS region where you will deploy your infrastructure.
+**Outputs**. A resource has [outputs]({{< relref "/docs/intro/concepts/inputs-outputs">}}) that are properties of the resource instance. Outputs are also how Pulumi tracks dependencies between resources.
 
-**Stack Outputs**. A [stack output]() consists of the properties that a stack exports, such as a domain name or a Kubernetes kubeconfig file.
+**Secrets**. One type of input is a [secret]({{< relref "/docs/intro/concepts/secrets">}}). Secrets are private data, such as passwords, used by a resource. Secrets can be encrypted.
 
-**Stack References**. A [stack reference]() connects the exported properties of one stack to another stack. For example, you can declare a Kubernetes cluster in one stack which consumes services in another stack.
+**Environment Variables**. Another type of input are [environment variables]({{< relref "">}}), which the stack requires to deploy the infrastructure correctly. An example of an environment variable is the AWS region where you will deploy your infrastructure.
+
+**Stack Outputs**. A [stack output]({{< relref "/docs/intro/concepts/inputs-outputs">}}) consists of the properties that a stack exports, such as a domain name or a Kubernetes kubeconfig file.
+
+**Stack References**. A [stack reference]({{< relref "/docs/intro/concepts/inputs-outputs">}}) connects the exported properties of one stack to another stack. For example, you can declare a Kubernetes cluster in one stack which consumes services in another stack.
 
 ### How the model works {#how-the-model-works}
 
@@ -81,7 +85,7 @@ The language host is responsible for running a Pulumi program and setting up an 
 
 - A language executor, which is a binary named `pulumi-language-<language-name>`, which Pulumi uses to launch the runtime for the language your program is written in (e.g. Node or Python). This binary is distributed with the Pulumi CLI.
 
-- A language runtime, which prepares your program for execution and observes its execution in order to detect resource registrations. When a resource is registered (for example, via `new Resource()` in JavaScript or `Resource(...)` in Python), the language runtime communicates the registration request back to the deployment engine.
+- A language runtime, which prepares your program for execution and observes its execution in order to detect resource registrations. When a resource is registered (for example, via `new Resource({{< relref "">}})` in JavaScript or `Resource(...)` in Python), the language runtime communicates the registration request back to the deployment engine.
 
     The language runtime is distributed as a regular package, just like any other code that might depend on your program. For example, the Node runtime is contained in the `@pulumi/pulumi` package available on npm, and the Python runtime is contained in the `pulumi` package available on PyPI.
 
@@ -103,6 +107,6 @@ State is critical to how Pulumi operates. Pulumi stores a copy of the current in
 
 ## Summary
 
-Building infrastructure with Pulumi requires a program to declare the infrastructure and the Pulumi environment to deploy and manage that infrastructure. There are two main differences between using your favorite programming language to write a program versus using  a YAML or JSON [DSL]() to declare infrastructure. One is that a programming language allows you to extend or combine resources. The other difference is that you can take advantage of the language’s software engineering tools such as IDEs, testing frameworks, and versioning.
+Building infrastructure with Pulumi requires a program to declare the infrastructure and the Pulumi environment to deploy and manage that infrastructure. There are two main differences between using your favorite programming language to write a program versus using  a YAML or JSON [DSL]({{< relref "">}}) to declare infrastructure. One is that a programming language allows you to extend or combine resources. The other difference is that you can take advantage of the language’s software engineering tools such as IDEs, testing frameworks, and versioning.
 
 The following documents will give you a deeper understanding of the Pulumi programming model.

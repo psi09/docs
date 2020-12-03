@@ -1,6 +1,6 @@
 ---
 title: "Resources"
-meta_desc: An in-depth look at Resources and their usage.
+meta_desc: An in-depth look at Pulumi Resources and their usage.
 menu:
   intro:
     parent: concepts
@@ -9,9 +9,9 @@ menu:
 aliases: ["/docs/reference/resources/"]
 ---
 
-A resource represents one or more pieces in your infrastructure. For example, a resource might represent a compute instance or an S3 bucket on AWS. All infrastructure resources are described by one of two subclasses of the [`Resource `({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Resource" >}})]class. These two subclasses are:
+A resource represents one or more pieces in your infrastructure. For example, a resource might represent a compute instance or an S3 bucket on AWS. All infrastructure resources are described by one of two subclasses of the [`Resource`({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Resource" >}})]class. These two subclasses are:
 
-- [`CustomResource`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.CustomResource" >}}): A custom resource is the most common kind of resource. A custom resource is a resource managed by a resource provider.  (A resource provider creates the infrastructure you’ve described in your program in the cloud service you’ve selected. For more information about resource providers, see [Providers]().)
+- [`CustomResource`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.CustomResource" >}}): A custom resource is the most common kind of resource. A custom resource is a resource managed by a resource provider.  (A resource provider creates the infrastructure you’ve described in your program in the cloud service you’ve selected. For more information about resource providers, see [Providers]({{< relref "/docs/intro/concepts/resource-providers">}}).)
 - [`ComponentResource`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.ComponentResource" >}}): A component resource is an aggregation of many resources that forms a larger abstraction.
 
 ## Resource Libraries
@@ -26,9 +26,9 @@ A custom resource’s desired state is declared by constructing an instance:
 res = Resource(name, args, options)
 ```
 
-All resources have a required [`name`]({{< relref "/intro/concepts/programming-model#names" >}}) argument, which must be unique across resources of the same kind in a [`stack`]({{< relref "/docs/intro/concepts/stack">}}). This logical name influences the physical name assigned by your infrastructure’s cloud provider.  [Pulumi auto-names physical resources]({{< relref "/docs/intro/concepts/programming-model#autonaming" >}}) by default, so the physical name and the logical name may differ. (For more information about auto-naming, see [Physical Names and Auto-Naming](), below.
+All resources have a required [`name`]({{< relref "/docs/intro/concepts/programming-model#names" >}}) argument, which must be unique across resources of the same kind in a [`stack`]({{< relref "/docs/intro/concepts/stack" >}}). This logical name influences the physical name assigned by your infrastructure’s cloud provider.  [Pulumi auto-names physical resources]({{< relref "/docs/intro/concepts/programming-model#names" >}}) by default, so the physical name and the logical name may differ. (For more information about auto-naming, see [Physical Names and Auto-Naming]({{< relref "/docs/intro/concepts/programming-model#names" >}}), below.
 
-The `args` argument is an object with a set of named property input values that are used to initialize the resource. These can be normal raw values—such as strings, integers, lists, and maps—or [outputs from other resources]({{< relref "/docs/intro/concepts/programming-model/#outputs" >}}). For more information, see [Inputs and Outputs]().
+The `args` argument is an object with a set of named property input values that are used to initialize the resource. These can be normal raw values—such as strings, integers, lists, and maps—or [outputs from other resources]({{< relref "/docs/intro/concepts/inputs-outputs" >}}). For more information, see [Inputs and Outputs]({{< relref "docs/intro/concepts/inputs-outputs" >}}).
 
 The `options` argument is optional, but [lets you control certain aspects of the resource]({{< relref "/docs/intro/concepts/programming-model#resourceoptions" >}}). For example, you can show explicit dependencies, use a custom provider configuration, or import an existing infrastructure. For more information, [Resource Options]({{< relref "/docs/intro/concepts/programming-model#resourceoptions" >}})  later in this document.
 
@@ -53,7 +53,7 @@ server = aws.ec2.Instance('web-server',
 
 In this example, the two resource objects, `group` and `server`, plus their logical names and properties, tell Pulumi everything it needs to create, update, or delete your infrastructure. For example, Pulumi now knows you’d like an EC2 security group named `web-sg` with a single ingress rule, and a `t2.micro`-sized EC2 instance that runs AMI `ami-8689aa05` and uses the `web-sg` security group.
 
-Thanks to [output properties]({{< relref "/docs/intro/concepts/programming-model/#outputs" >}}), Pulumi understands the dependencies between resources. Pulumi uses that information to create a dependency graph of resources. With that graph, it can maximize parallelism and ensure correct ordering. When you run the `pulumi up` command, Pulumi computes the desired state, compares it to the current infrastructure (if present), shows the delta, and confirms and carries out the changes.
+Thanks to [output properties]({{< relref "/docs/intro/concepts/programming-model#outputs" >}}), Pulumi understands the dependencies between resources. Pulumi uses that information to create a dependency graph of resources. With that graph, it can maximize parallelism and ensure correct ordering. When you run the `pulumi up` command, Pulumi computes the desired state, compares it to the current infrastructure (if present), shows the delta, and confirms and carries out the changes.
 
 You can export the resulting infrastructure values if you want to access them outside your application. For example, adding this code to the example exports the server’s resulting IP address and DNS name:
 
@@ -63,7 +63,7 @@ pulumi.export('public_ip', server.public_ip)
 pulumi.export('public_dns', server.public_dns)
 ```
 
-The exported values are printed after you do a `pulumi up` and they are easy to access from the CLI’s pulumi stack output command. To learn more, see [stack outputs]({{< relref "/docs/intro/concepts/programming-model/#stack-outputs" >}}).
+The exported values are printed after you do a `pulumi up` and they are easy to access from the CLI’s `pulumi stack output` command. To learn more, see [stack outputs]({{< relref "/docs/intro/concepts/inputs-outputs" >}}).
 
 The export call/expression stores the computed values on the stack's checkpoint (this is a state file, the JSON-serialized representation of the stack as of the last update), which makes them available as stack "outputs" -- values you can reference programmatically or with the CLI:
 
@@ -96,7 +96,7 @@ var foo = new aws.Thing("my-thing");
 
 The word foo has no bearing at all on the resulting infrastructure. The resources that comprise the resulting infrastructure never use the word foo. You could change it to bar, run a pulumi up, and the result would be no changes. (The only exception is if you export that variable, in which case the name of the export would change from foo to bar).
 
-## Physical Names and Auto-Naming
+## Physical Names and Auto-Naming (#names)
 
 A resource’s logical and physical names may not match. In fact, most physical resource names in Pulumi are, by default, auto-named. As a result, even if your IAM role has a logical name of `my-role`, the physical name will typically look something like `my-role-d7c2fa0`. The suffix appended to the end of the name is random.
 
@@ -152,9 +152,9 @@ Adding the project name and stack name to the string (thereby making the role’
 
 Each resource is assigned a [Uniform Resource Name (URN)](https://en.wikipedia.org/wiki/Uniform_Resource_Name) that uniquely identifies that resource globally.  Unless you are writing a tool, you will seldom need to interact with an URN directly, but it is fundamental to how Pulumi works so it’s good to have a general understanding of it.
 
-The URN is automatically constructed from the project name, stack name, resource name, resource type, and the types of all the parent resources (in the case of [component resources](). Here’s an example of an URN.
+The URN is automatically constructed from the project name, stack name, resource name, resource type, and the types of all the parent resources (in the case of [component resources]({{< relref "docs/intro/concepts/resources" >}}). Here’s an example of an URN.
 
-```
+```text
 urn:pulumi:production::acmecorp-website::custom:resources:Resource$aws:s3/bucket:Bucket::my-bucket
            ^^^^^^^^^^  ^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^
           <stack-name>  <project-name>        <parent-type>          <resource-type>  <resource-name>
@@ -170,11 +170,11 @@ Any change to the URN of a resource causes the old and new resources to be treat
 
 If you’d like to rename a resource without destroying the old one, refer to the [aliases]({{< relref "/docs/intro/concepts/programming-model#aliases" >}}) capability.
 
-Resources constructed as children of a [component]({{< relref "/docs/intro/concepts/programming-model/#components" >}}) resource should have their names that are unique across multiple instances of the component resource. In general, the name of the component resource instance itself (the `name` parameter passed into the component resource constructor) should be used as part of the name of the child resources.
+Resources constructed as children of a [component]({{< relref "/docs/intro/concepts/programming-model#components" >}}) resource should have their names that are unique across multiple instances of the component resource. In general, the name of the component resource instance itself (the `name` parameter passed into the component resource constructor) should be used as part of the name of the child resources.
 
 ### Resource Arguments
 
-A resource’s argument parameters differ by resource type. Each resource has a number of named input properties that control the behavior of the resulting infrastructure. To determine what arguments a resource supports, refer to that resource’s [API documentation]({{< relref "/docs/reference/pkg/" >}}).
+A resource’s argument parameters differ by resource type. Each resource has a number of named input properties that control the behavior of the resulting infrastructure. To determine what arguments a resource supports, refer to that resource’s [API documentation]({{< relref "/docs/reference/pkg" >}}).
 
 ### Resource Options
 
@@ -185,7 +185,7 @@ All resource constructors accept an options argument that provide the following 
 - [customTimeouts]({{< relref "/docs/intro/concepts/programming-model#customtimeouts" >}}): override the default retry/timeout behavior for resource provisioning. The default value varies by resource.
 - [deleteBeforeReplace]({{< relref "/docs/intro/concepts/programming-model#deletebeforereplace" >}}): override the default create-before-delete behavior when replacing a resource.
 - [dependsOn]({{< relref "/docs/intro/concepts/programming-model#dependson" >}}): specify additional explicit dependencies in addition to the ones in the dependency graph.
-- [ignoreChanges]({{< relref "/docs/intro/concepts/programming-model#ignorechanges >}}): declare that changes to certain properties should be ignored during a diff.
+- [ignoreChanges]({{< relref "/docs/intro/concepts/programming-model#ignorechanges" >}}): declare that changes to certain properties should be ignored during a diff.
 - [import]({{< relref "/docs/intro/concepts/programming-model#import" >}}: bring an existing cloud resource into Pulumi.
 - [parent]({{< relref "/docs/intro/concepts/programming-model#parent" >}}): establish a parent/child relationship between resources.
 - [protect]({{< relref "/docs/intro/concepts/programming-model#protect" >}}): prevent accidental deletion of a resource by marking it as protected.
@@ -431,7 +431,7 @@ class MyComponent(pulumi.ComponentResource):
 
 Upon creating a new instance of MyComponent, the call to the base constructor (using `super/base`) registers the component resource instance with the Pulumi engine. This records the resource’s state and tracks it across program deployments so that you see diffs during updates just like with a regular resource (even though component resources have no provider logic associated with them). Since all resources must have a name, a component resource constructor should accept a name and pass it to super.
 
-If you wish to have full control over one of the custom resource’s lifecycle in your component resource—including running specific code when a resource has been updated or deleted—you should look into [`dynamic providers`]({{< re;relref "/docs/intro/concepts/programming-model#dynamicproviders" >}}). These let you create full-blown resource abstractions in your language of choice.
+If you wish to have full control over one of the custom resource’s lifecycle in your component resource—including running specific code when a resource has been updated or deleted—you should look into [`dynamic providers`]({{< relref "/docs/intro/concepts/programming-model#dynamicproviders" >}}). These let you create full-blown resource abstractions in your language of choice.
 
 A component resource must register a unique type name with the base constructor. In the example, the registration is `pkg:index:MyComponent`. To reduce the potential of other type name conflicts, this name contains the package and module name, in addition to the type: `<package>:<module>:<type>`. These names are namespaced alongside non-component resources, such as aws:lambda:Function.
 

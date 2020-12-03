@@ -148,15 +148,18 @@ This code uses the simple, empty constructor. This default constructor automatic
 
 ### Typed Configuration Values
 
-Configuration values are stored as strings, but can be parsed and retrieved as typed values. In addition to Config.get  and Config.require , which are untyped, there is also a family of typed functions. For example, Config.get_int  converts the string value to a number returns an int value instead of a string, and raises an exception if the value cannot be parsed as a number. We saw this in action above.
-For richer structured data, the Config.get_object  method can be used to parse JSON values which can be set on the command line with pulumi config set and the --path flag. For example:
+Configuration values are stored as strings, but can be parsed and retrieved as typed values. In addition to [`Config.get`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.get" >}}) and [`Config.require`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.require" >}}), which are untyped, there is also a family of typed functions. For example, [`Config.get_int`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.get_int" >}})  converts the string value to a number returns an int value instead of a string, and raises an exception if the value cannot be parsed as a number.
+
+For richer structured data, the [`Config.get_object`]({{< relref "/docs/reference/pkg/python/pulumi#pulumi.Config.get_object" >}}) method can be used to parse JSON values which can be set on the command line with `pulumi config set` and the `--path` flag. For example:
+
+```bash
 $ pulumi config set --path data.active true
 $ pulumi config set --path data.nums[0] 1
 $ pulumi config set --path data.nums[1] 2
 $ pulumi config set --path data.nums[2] 3
+```
 
-
-### Encrypted Secrets {#secrets}
+### Encrypted Secrets (#secrets)
 
 Some configuration data is sensitive, such as database passwords or service tokens. For such cases, passing the `--secret` flag to the `config set` command encrypts the data and stores the resulting ciphertext instead of plaintext.
 
